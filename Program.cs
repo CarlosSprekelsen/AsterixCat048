@@ -24,7 +24,7 @@ namespace AsterixCat048
                 "$GPGSA,A,3,04,05,,07,08,,09,10,,12,,14,3.8,1.2,2.9*3D"
             };
 
-            // Required program paramenters
+            // Required program parameters
 
             double radarLatitude = 48.0; // Radar latitude
             double radarLongitude = 11.0; // Radar longitude
@@ -45,12 +45,8 @@ namespace AsterixCat048
                 radarLatitude,
                 radarLongitude
             );
-            Console.Write($"X: {x} ");
-            Console.Write($"Y: {y} ");
 
             var (rho, theta) = CoordinateConverter.ConvertToPolar(x, y);
-            Console.Write($"RHO: {rho} ");
-            Console.Write($"THETA: {theta} ");
 
             // Convert altitude to flight level
             // Disclaimer: The flight level should be based on barometric altitude rather than GPS altitude.
@@ -63,7 +59,6 @@ namespace AsterixCat048
             // Always use barometric altitude when calculating flight levels for ATC.
             double altitudeInFeet = altitude * 3.28084; // Convert meters to feet
             int flightLevel = (int)(altitudeInFeet / 100.0); // Flight level in units of 100 feet
-            Console.Write($"FL: {flightLevel} ");
 
             // Create ASTERIX Cat048 message
             AsterixCat048Message messageNMEA = new AsterixCat048Message
