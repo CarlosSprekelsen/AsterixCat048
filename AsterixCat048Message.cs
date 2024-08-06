@@ -312,8 +312,8 @@ namespace AsterixCat048
         {
             // Print I048/042 Calculated Position in Cartesian Coordinates
             Console.WriteLine("Data Item I048/042: Calculated Position in Cartesian Coordinates");
-            Console.WriteLine($"  X [Nm]: {X / 256}");
-            Console.WriteLine($"  Y [Nm]: {Y / 256}");
+            Console.WriteLine($"  X [Nm]: {X / 128}");
+            Console.WriteLine($"  Y [Nm]: {Y / 128}");
         }
     }
 
