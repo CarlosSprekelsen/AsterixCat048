@@ -1457,8 +1457,9 @@ namespace AsterixCat048
 
         public void PrintToConsole()
         {
+            Console.WriteLine("-------------------------------");
             Console.WriteLine("Decoded Asterix Cat048 Message:");
-            Console.WriteLine("--------------------");
+            Console.WriteLine("-------------------------------");
             Console.WriteLine($"Category: {Category}");
             Console.WriteLine($"Length: {Length}");
 
@@ -1536,7 +1537,7 @@ namespace AsterixCat048
                     );
                 }
             }
-            Console.WriteLine("--------------------");
+            Console.WriteLine("-------------------------------");
         }
 
         public override bool Equals(object obj)
