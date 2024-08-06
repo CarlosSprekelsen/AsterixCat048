@@ -15,7 +15,7 @@ namespace AsterixCat048
             message.PrintToConsole();
             */
 
-        // Sample NMEA sentences
+            // Sample NMEA sentences
             string[] nmeaSentences = new string[]
             {
                 "$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47",
@@ -31,15 +31,29 @@ namespace AsterixCat048
             byte sac = 0;
             byte sic = 1;
             // Extract data from NMEA sentences
-            ExtractDataFromNMEA(nmeaSentences,  out uint timeOfDay, out double latitude, out double longitude, out double altitude);
-            
+            ExtractDataFromNMEA(
+                nmeaSentences,
+                out uint timeOfDay,
+                out double latitude,
+                out double longitude,
+                out double altitude
+            );
 
-            var (x, y) = CoordinateConverter.ConvertToLocal2D(latitude, longitude, radarLatitude, radarLongitude);
+            var (x, y) = CoordinateConverter.ConvertToLocal2D(
+                latitude,
+                longitude,
+                radarLatitude,
+                radarLongitude
+            );
             var (rho, theta) = CoordinateConverter.ConvertToPolar(x, y);
 
             // Apply scale factors
             ushort scaledRho = (ushort)(rho * 256); // Scale factor for RHO
             ushort scaledTheta = (ushort)(theta * (65536 / 360.0)); // Scale factor for THETA
+
+            // Convert altitude to flight level
+            double altitudeInFeet = altitude * 3.28084; // Convert meters to feet
+            short flightLevel = (short)(altitudeInFeet / 100.0 * 4); // Flight level in units of 100 feet, scaled by 4
 
             // Create ASTERIX Cat048 message
             AsterixCat048Message messageNMEA = new AsterixCat048Message
@@ -48,9 +62,14 @@ namespace AsterixCat048
                 DataSourceIdentifier = new I048010 { SAC = sac, SIC = sic },
                 TimeOfDay = new I048140 { TimeOfDay = timeOfDay },
                 CalculatedPositionCartesian = new I048042 { X = (short)x, Y = (short)y },
-                MeasuredPositionPolar = new I048040 { RHO = scaledRho, THETA = scaledTheta }
+                MeasuredPositionPolar = new I048040 { RHO = scaledRho, THETA = scaledTheta },
+                FlightLevel = new I048090
+                {
+                    FlightLevel = flightLevel,
+                    V = false,
+                    G = false
+                }
             };
-
             // Encode message
             byte[] encodedMessage = AsterixEncoder.Encode(messageNMEA);
 
@@ -64,14 +83,18 @@ namespace AsterixCat048
             Console.WriteLine();
             Console.WriteLine("--------------------");
 
-
-             AsterixCat048Message messageReverse = AsterixDecoder.Decode(encodedMessage);
-             messageReverse.PrintToConsole();
+            AsterixCat048Message messageReverse = AsterixDecoder.Decode(encodedMessage);
+            messageReverse.PrintToConsole();
         }
 
-        private static void ExtractDataFromNMEA(string[] nmeaSentences, out uint timeOfDay, out double latitude, out double longitude, out double altitude)
+        private static void ExtractDataFromNMEA(
+            string[] nmeaSentences,
+            out uint timeOfDay,
+            out double latitude,
+            out double longitude,
+            out double altitude
+        )
         {
-
             timeOfDay = 0;
             latitude = 0;
             longitude = 0;
@@ -102,8 +125,9 @@ namespace AsterixCat048
 
         private static double ConvertLatitude(string latitudeString, string direction)
         {
-            double latitude = double.Parse(latitudeString.Substring(0, 2), CultureInfo.InvariantCulture) +
-                              double.Parse(latitudeString.Substring(2), CultureInfo.InvariantCulture) / 60.0;
+            double latitude =
+                double.Parse(latitudeString.Substring(0, 2), CultureInfo.InvariantCulture)
+                + double.Parse(latitudeString.Substring(2), CultureInfo.InvariantCulture) / 60.0;
             if (direction == "S")
                 latitude = -latitude;
             return latitude;
@@ -111,12 +135,14 @@ namespace AsterixCat048
 
         private static double ConvertLongitude(string longitudeString, string direction)
         {
-            double longitude = double.Parse(longitudeString.Substring(0, 3), CultureInfo.InvariantCulture) +
-                               double.Parse(longitudeString.Substring(3), CultureInfo.InvariantCulture) / 60.0;
+            double longitude =
+                double.Parse(longitudeString.Substring(0, 3), CultureInfo.InvariantCulture)
+                + double.Parse(longitudeString.Substring(3), CultureInfo.InvariantCulture) / 60.0;
             if (direction == "W")
                 longitude = -longitude;
             return longitude;
         }
+
         private static byte[] HexStringToByteArray(string hex)
         {
             int numberChars = hex.Length;
@@ -127,50 +153,64 @@ namespace AsterixCat048
             }
             return bytes;
         }
-
-
     }
 
-public class CoordinateConverter
-{
-    private const double EarthRadius = 6378137.0; // WGS-84 Earth radius in meters
-
-    public static (double x, double y) ConvertToLocal2D(double latitude, double longitude, double radarLatitude, double radarLongitude)
+    public class CoordinateConverter
     {
-        // Convert degrees to radians
-        double latRad = DegreesToRadians(latitude);
-        double lonRad = DegreesToRadians(longitude);
-        double radarLatRad = DegreesToRadians(radarLatitude);
-        double radarLonRad = DegreesToRadians(radarLongitude);
+        private const double EarthRadius = 6378137.0; // WGS-84 Earth radius in meters
 
-        // Calculate the stereographic projection
-        double k = 2.0 / (1.0 + Math.Sin(radarLatRad) * Math.Sin(latRad) + Math.Cos(radarLatRad) * Math.Cos(latRad) * Math.Cos(lonRad - radarLonRad));
+        public static (double x, double y) ConvertToLocal2D(
+            double latitude,
+            double longitude,
+            double radarLatitude,
+            double radarLongitude
+        )
+        {
+            // Convert degrees to radians
+            double latRad = DegreesToRadians(latitude);
+            double lonRad = DegreesToRadians(longitude);
+            double radarLatRad = DegreesToRadians(radarLatitude);
+            double radarLonRad = DegreesToRadians(radarLongitude);
 
-        double x = EarthRadius * k * Math.Cos(latRad) * Math.Sin(lonRad - radarLonRad);
-        double y = EarthRadius * k * (Math.Cos(radarLatRad) * Math.Sin(latRad) - Math.Sin(radarLatRad) * Math.Cos(latRad) * Math.Cos(lonRad - radarLonRad));
+            // Calculate the stereographic projection
+            double k =
+                2.0
+                / (
+                    1.0
+                    + Math.Sin(radarLatRad) * Math.Sin(latRad)
+                    + Math.Cos(radarLatRad) * Math.Cos(latRad) * Math.Cos(lonRad - radarLonRad)
+                );
 
-        return (x, y);
+            double x = EarthRadius * k * Math.Cos(latRad) * Math.Sin(lonRad - radarLonRad);
+            double y =
+                EarthRadius
+                * k
+                * (
+                    Math.Cos(radarLatRad) * Math.Sin(latRad)
+                    - Math.Sin(radarLatRad) * Math.Cos(latRad) * Math.Cos(lonRad - radarLonRad)
+                );
+
+            return (x, y);
+        }
+
+        public static (double rho, double theta) ConvertToPolar(double x, double y)
+        {
+            double rho = Math.Sqrt(x * x + y * y) / 1852.0; // Convert meters to nautical miles
+            double theta = RadiansToDegrees(Math.Atan2(x, y)); // Calculate azimuth angle in degrees
+            if (theta < 0)
+                theta += 360.0; // Normalize angle to [0, 360]
+
+            return (rho, theta);
+        }
+
+        private static double DegreesToRadians(double degrees)
+        {
+            return degrees * Math.PI / 180.0;
+        }
+
+        private static double RadiansToDegrees(double radians)
+        {
+            return radians * 180.0 / Math.PI;
+        }
     }
-
-    public static (double rho, double theta) ConvertToPolar(double x, double y)
-    {
-        double rho = Math.Sqrt(x * x + y * y) / 1852.0; // Convert meters to nautical miles
-        double theta = RadiansToDegrees(Math.Atan2(x, y)); // Calculate azimuth angle in degrees
-        if (theta < 0) theta += 360.0; // Normalize angle to [0, 360]
-
-        return (rho, theta);
-    }
-
-
-    private static double DegreesToRadians(double degrees)
-    {
-        return degrees * Math.PI / 180.0;
-    }
-
-    private static double RadiansToDegrees(double radians)
-    {
-        return radians * 180.0 / Math.PI;
-    }
-
-}
 }
