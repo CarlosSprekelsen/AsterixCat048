@@ -1,0 +1,19 @@
+# Ignore Visual Studio temporary files, build results, and
+# user-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files
+Generated\ Files/
+# Add other patterns for your development environment
+
+# Ignore build output directories
+bin/
+obj/
+docs/
+
+# Specifically ignore the net8.0 debug directory
+bin/Debug/net8.0/
