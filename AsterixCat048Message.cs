@@ -1259,8 +1259,8 @@ public struct I048170Extension
         public I048250 BDSRegisterData;
         public I048260 ACASResolutionAdvisoryReport;
         public List<AdditionalField> AdditionalFields;
-        public object SpecialPurposeField; // Placeholder for special purpose fields
-        public object ReservedExpansionField; // Placeholder for reserved expansion fields
+        public byte[]? SpecialPurposeField; // Placeholder for special purpose fields
+        public byte[]? ReservedExpansionField; // Placeholder for reserved expansion fields
 
 
         public void PrintToConsole()
@@ -1295,8 +1295,24 @@ public struct I048170Extension
         if (FRNList.Contains(24)) Mode2Code.PrintToConsole();
         if (FRNList.Contains(25)) Mode1CodeConfidence.PrintToConsole();
         if (FRNList.Contains(26)) Mode2CodeConfidence.PrintToConsole();
-        if (FRNList.Contains(27)) Console.WriteLine("Data Item I048/SP: Special Purpose Field");
-        if (FRNList.Contains(28)) Console.WriteLine("Data Item I048/RE: Reserved Expansion Field");
+        if (FRNList.Contains(27)) 
+        {
+             // Print Special Purpose Field
+            if (SpecialPurposeField != null)
+            {
+            Console.WriteLine("Data Item I048/SP: Special Purpose Field");
+            Console.WriteLine($"  Data (hex): {BitConverter.ToString(SpecialPurposeField).Replace("-", " ")}");
+            }
+        }
+        if (FRNList.Contains(28)) {
+            // Print Reserved Expansion Field
+            if (ReservedExpansionField != null)
+            {
+            Console.WriteLine("Data Item I048/RE: Reserved Expansion Field");
+            Console.WriteLine($"  Data (hex): {BitConverter.ToString(ReservedExpansionField).Replace("-", " ")}");
+            }     
+        }
+
     }
 
         public override bool Equals(object obj)

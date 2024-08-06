@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AsterixCat048")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a10d4dfde68a130c18b5d3e5ad7c3e605689138")]
 [assembly: System.Reflection.AssemblyProductAttribute("AsterixCat048")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AsterixCat048")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

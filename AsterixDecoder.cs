@@ -576,18 +576,20 @@ private static I048170 DecodeI048170(BinaryReader reader)
             return new I048260 { ACASRA = reader.ReadBytes(7) };
         }
 
-            private static object DecodeSpecialPurposeField(BinaryReader reader)
+private static byte[] DecodeSpecialPurposeField(BinaryReader reader)
 {
-    // Implement the decoding for the special purpose field here
-    // Placeholder implementation
-    return new object();
+    byte length = reader.ReadByte();
+    byte[] data = reader.ReadBytes(length - 1); // Subtract 1 to account for the length byte itself
+    return data;
 }
 
-private static object DecodeReservedExpansionField(BinaryReader reader)
+
+private static byte[] DecodeReservedExpansionField(BinaryReader reader)
 {
-    // Implement the decoding for the reserved expansion field here
-    // Placeholder implementation
-    return new object();
+    // Read the length byte
+    byte length = reader.ReadByte();
+    // Read the remaining bytes based on the length
+    return reader.ReadBytes(length);
 }
 
     }

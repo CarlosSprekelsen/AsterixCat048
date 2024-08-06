@@ -23,3 +23,4 @@ C:\Users\p5cts-admin\source\repos\ASTERIX\AsterixCat048\obj\Debug\net8.0\refint\
 C:\Users\p5cts-admin\source\repos\ASTERIX\AsterixCat048\obj\Debug\net8.0\AsterixCat048.pdb
 C:\Users\p5cts-admin\source\repos\ASTERIX\AsterixCat048\obj\Debug\net8.0\AsterixCat048.genruntimeconfig.cache
 C:\Users\p5cts-admin\source\repos\ASTERIX\AsterixCat048\obj\Debug\net8.0\ref\AsterixCat048.dll
+C:\Users\p5cts-admin\source\repos\ASTERIX\AsterixCat048\obj\Debug\net8.0\AsterixCat048.sourcelink.json

@@ -6,184 +6,237 @@ namespace AsterixCat048
 {
     public static class AsterixEncoder
     {
-        public static byte[] Encode(AsterixCat048Message message)
+
+public static byte[] Encode(AsterixCat048Message message)
+{
+    using (MemoryStream ms = new MemoryStream())
+    {
+        using (BinaryWriter writer = new BinaryWriter(ms))
         {
-            using (MemoryStream ms = new MemoryStream())
+            // Write CAT
+            writer.Write((byte)message.Category);
+            // Write LEN placeholder
+            writer.Write((ushort)0); // Placeholder for length, to be updated later
+
+            // Initialize FSPEC
+            List<byte> fspec = new List<byte>();
+            long fspecPosition = ms.Position;
+
+            // Write FSPEC placeholder (reserve 1 byte for FSPEC initially)
+            writer.Write((byte)0);
+
+            // Encode compulsory fields
+            WriteI048010(writer, message.DataSourceIdentifier); // FRN 1
+            AddToFspec(fspec, 1);
+
+            WriteI048140(writer, message.TimeOfDay); // FRN 2
+            AddToFspec(fspec, 2);
+
+            // Encode optional fields
+            if (!message.TargetReportAndTargetCapabilities.Equals(default(I048020)))
             {
-                using (BinaryWriter writer = new BinaryWriter(ms))
-                {
-                    // Write CAT
-                    writer.Write((byte)message.Category);
-                    // Write LEN placeholder
-                    writer.Write((ushort)0); // Placeholder for length, to be updated later
-
-                    // Write FSPEC placeholder
-                    byte[] fspec = new byte[4];
-                    int fspecIndex = 0;
-                    long fspecPosition = ms.Position;
-                    writer.Write(fspec);
-
-                    // Encode mandatory fields
-                    WriteI048010(writer, message.DataSourceIdentifier);
-                    fspec[fspecIndex] |= 0x80;
-                    WriteI048140(writer, message.TimeOfDay);
-                    fspec[fspecIndex] |= 0x40;
-
-                    // Encode optional fields based on FSPEC
-                    if (message.TargetReportAndTargetCapabilities != default(I048020))
-                    {
-                        fspec[fspecIndex] |= 0x20;
-                        WriteI048020(writer, message.TargetReportAndTargetCapabilities);
-                    }
-                    if (message.WarningErrorConditionsAndTargetClassification != default(I048030))
-                    {
-                        fspec[fspecIndex] |= 0x10;
-                        WriteI048030(writer, message.WarningErrorConditionsAndTargetClassification);
-                    }
-                    if (message.MeasuredPositionPolar != default(I048040))
-                    {
-                        fspec[fspecIndex] |= 0x08;
-                        WriteI048040(writer, message.MeasuredPositionPolar);
-                    }
-                    if (message.CalculatedPositionCartesian != default(I048042))
-                    {
-                        fspec[fspecIndex] |= 0x04;
-                        WriteI048042(writer, message.CalculatedPositionCartesian);
-                    }
-                    if (message.Mode2Code != default(I048050))
-                    {
-                        fspec[fspecIndex] |= 0x02;
-                        WriteI048050(writer, message.Mode2Code);
-                    }
-                    if (message.Mode1Code != default(I048055))
-                    {
-                        fspec[fspecIndex] |= 0x01;
-                        WriteI048055(writer, message.Mode1Code);
-                    }
-                    fspecIndex++;
-                    if (message.Mode2CodeConfidence != default(I048060))
-                    {
-                        fspec[fspecIndex] |= 0x80;
-                        WriteI048060(writer, message.Mode2CodeConfidence);
-                    }
-                    if (message.Mode1CodeConfidence != default(I048065))
-                    {
-                        fspec[fspecIndex] |= 0x40;
-                        WriteI048065(writer, message.Mode1CodeConfidence);
-                    }
-                    if (message.Mode3ACode != default(I048070))
-                    {
-                        fspec[fspecIndex] |= 0x20;
-                        WriteI048070(writer, message.Mode3ACode);
-                    }
-                    if (message.Mode3ACodeConfidence != default(I048080))
-                    {
-                        fspec[fspecIndex] |= 0x10;
-                        WriteI048080(writer, message.Mode3ACodeConfidence);
-                    }
-                    if (message.FlightLevel != default(I048090))
-                    {
-                        fspec[fspecIndex] |= 0x08;
-                        WriteI048090(writer, message.FlightLevel);
-                    }
-                    if (message.ModeCCodeAndConfidence != default(I048100))
-                    {
-                        fspec[fspecIndex] |= 0x04;
-                        WriteI048100(writer, message.ModeCCodeAndConfidence);
-                    }
-                    if (message.HeightMeasuredBy3DRadar != default(I048110))
-                    {
-                        fspec[fspecIndex] |= 0x02;
-                        WriteI048110(writer, message.HeightMeasuredBy3DRadar);
-                    }
-                    if (message.RadialDopplerSpeed != default(I048120))
-                    {
-                        fspec[fspecIndex] |= 0x01;
-                        WriteI048120(writer, message.RadialDopplerSpeed);
-                    }
-                    fspecIndex++;
-                    if (message.RadarPlotCharacteristics != default(I048130))
-                    {
-                        fspec[fspecIndex] |= 0x80;
-                        WriteI048130(writer, message.RadarPlotCharacteristics);
-                    }
-                    if (message.TrackNumber != default(I048161))
-                    {
-                        fspec[fspecIndex] |= 0x40;
-                        WriteI048161(writer, message.TrackNumber);
-                    }
-                    if (message.TrackStatus != default(I048170))
-                    {
-                        fspec[fspecIndex] |= 0x20;
-                        WriteI048170(writer, message.TrackStatus);
-                    }
-                    if (message.CalculatedTrackVelocityPolar != default(I048200))
-                    {
-                        fspec[fspecIndex] |= 0x10;
-                        WriteI048200(writer, message.CalculatedTrackVelocityPolar);
-                    }
-                    if (message.TrackQuality != default(I048210))
-                    {
-                        fspec[fspecIndex] |= 0x08;
-                        WriteI048210(writer, message.TrackQuality);
-                    }
-                    if (message.AircraftAddress != default(I048220))
-                    {
-                        fspec[fspecIndex] |= 0x04;
-                        WriteI048220(writer, message.AircraftAddress);
-                    }
-                    if (message.CommunicationsACASCapabilityAndFlightStatus != default(I048230))
-                    {
-                        fspec[fspecIndex] |= 0x02;
-                        WriteI048230(writer, message.CommunicationsACASCapabilityAndFlightStatus);
-                    }
-                    if (message.AircraftIdentification != default(I048240))
-                    {
-                        fspec[fspecIndex] |= 0x01;
-                        WriteI048240(writer, message.AircraftIdentification);
-                    }
-                    fspecIndex++;
-                    if (message.BDSRegisterData != default(I048250))
-                    {
-                        fspec[fspecIndex] |= 0x80;
-                        WriteI048250(writer, message.BDSRegisterData);
-                    }
-                    if (message.ACASResolutionAdvisoryReport != default(I048260))
-                    {
-                        fspec[fspecIndex] |= 0x40;
-                        WriteI048260(writer, message.ACASResolutionAdvisoryReport);
-                    }
-
-                    // Write actual FSPEC
-                    ms.Seek(fspecPosition, SeekOrigin.Begin);
-                    writer.Write(fspec, 0, fspecIndex + 1);
-                    ms.Seek(0, SeekOrigin.End);
-
-                    // Encode additional fields
-                    foreach (var field in message.AdditionalFields)
-                    {
-                        writer.Write(field.FieldNumber);
-                        // Write the field value based on its type
-                        if (field.Value is int)
-                        {
-                            writer.Write((int)field.Value);
-                        }
-                        else if (field.Value is double)
-                        {
-                            writer.Write((double)field.Value);
-                        }
-                        // Add other types as needed
-                    }
-
-                    // Update length
-                    ushort length = (ushort)ms.Length;
-                    ms.Seek(1, SeekOrigin.Begin);
-                    writer.Write(length);
-
-                    return ms.ToArray();
-                }
+                WriteI048020(writer, message.TargetReportAndTargetCapabilities); // FRN 3
+                AddToFspec(fspec, 3);
             }
+            if (!message.MeasuredPositionPolar.Equals(default(I048040)))
+            {
+                WriteI048040(writer, message.MeasuredPositionPolar); // FRN 4
+                AddToFspec(fspec, 4);
+            }
+
+            if (!message.Mode3ACode.Equals(default(I048070)))
+            {
+                WriteI048070(writer, message.Mode3ACode); // FRN 5
+                AddToFspec(fspec, 5);
+            }
+
+            if (!message.FlightLevel.Equals(default(I048090)))
+            {
+                WriteI048090(writer, message.FlightLevel); // FRN 6
+                AddToFspec(fspec, 6);
+            }
+
+            if (!message.RadarPlotCharacteristics.Equals(default(I048130)))
+            {
+                WriteI048130(writer, message.RadarPlotCharacteristics); // FRN 7
+                AddToFspec(fspec, 7);
+            }
+
+            if (!message.AircraftAddress.Equals(default(I048220)))
+            {
+                WriteI048220(writer, message.AircraftAddress); // FRN 8
+                AddToFspec(fspec, 8);
+            }
+
+            if (!message.AircraftIdentification.Equals(default(I048240)))
+            {
+                WriteI048240(writer, message.AircraftIdentification); // FRN 9
+                AddToFspec(fspec, 9);
+            }
+
+            if (!message.BDSRegisterData.Equals(default(I048250)))
+            {
+                WriteI048250(writer, message.BDSRegisterData); // FRN 10
+                AddToFspec(fspec, 10);
+            }
+
+            if (!message.TrackNumber.Equals(default(I048161)))
+            {
+                WriteI048161(writer, message.TrackNumber); // FRN 11
+                AddToFspec(fspec, 11);
+            }
+        
+            if (!message.CalculatedPositionCartesian.Equals(default(I048042)))
+            {
+                WriteI048042(writer, message.CalculatedPositionCartesian); // FRN 12
+                AddToFspec(fspec, 12);
+            }
+
+            if (!message.CalculatedTrackVelocityPolar.Equals(default(I048200)))
+            {
+                WriteI048200(writer, message.CalculatedTrackVelocityPolar); // FRN 13
+                AddToFspec(fspec, 13);
+            }
+
+            if (!message.TrackStatus.Equals(default(I048170)))
+            {
+                WriteI048170(writer, message.TrackStatus); // FRN 14
+                AddToFspec(fspec, 14);
+            }
+
+            if (!message.TrackQuality.Equals(default(I048210)))
+            {
+                WriteI048210(writer, message.TrackQuality); // FRN 15
+                AddToFspec(fspec, 15);
+            }
+
+            if (!message.WarningErrorConditionsAndTargetClassification.Equals(default(I048030)))
+            {
+                WriteI048030(writer, message.WarningErrorConditionsAndTargetClassification); // FRN 16
+                AddToFspec(fspec, 16);
+            }
+
+            if (!message.Mode3ACodeConfidence.Equals(default(I048080)))
+            {
+                WriteI048080(writer, message.Mode3ACodeConfidence); // FRN 17
+                AddToFspec(fspec, 17);
+            }
+
+            if (!message.ModeCCodeAndConfidence.Equals(default(I048100)))
+            {
+                WriteI048100(writer, message.ModeCCodeAndConfidence); // FRN 18
+                AddToFspec(fspec, 18);
+            }
+
+            if (!message.HeightMeasuredBy3DRadar.Equals(default(I048110)))
+            {
+                WriteI048110(writer, message.HeightMeasuredBy3DRadar); // FRN 19
+                AddToFspec(fspec, 19);
+            }
+
+            if (!message.RadialDopplerSpeed.Equals(default(I048120)))
+            {
+                WriteI048120(writer, message.RadialDopplerSpeed); // FRN 20
+                AddToFspec(fspec, 20);
+            }
+
+            if (!message.CommunicationsACASCapabilityAndFlightStatus.Equals(default(I048230)))
+            {
+                WriteI048230(writer, message.CommunicationsACASCapabilityAndFlightStatus); // FRN 21
+                AddToFspec(fspec, 21);
+            }
+
+            if (!message.ACASResolutionAdvisoryReport.Equals(default(I048260)))
+            {
+                WriteI048260(writer, message.ACASResolutionAdvisoryReport); // FRN 22
+                AddToFspec(fspec, 22);
+            }
+
+            if (!message.Mode1Code.Equals(default(I048055)))
+            {
+                WriteI048055(writer, message.Mode1Code); // FRN 23
+                AddToFspec(fspec, 23);
+            }
+
+            if (!message.Mode2Code.Equals(default(I048050)))
+            {
+                WriteI048050(writer, message.Mode2Code); // FRN 24
+                AddToFspec(fspec, 24);
+            }
+
+            if (!message.Mode1CodeConfidence.Equals(default(I048065)))
+            {
+                WriteI048065(writer, message.Mode1CodeConfidence); // FRN 25
+                AddToFspec(fspec, 25);
+            }
+
+            if (!message.Mode2CodeConfidence.Equals(default(I048060)))
+            {
+                WriteI048060(writer, message.Mode2CodeConfidence); // FRN 26
+                AddToFspec(fspec, 26);
+            }
+
+            if (message.SpecialPurposeField != null)
+            {
+                   WriteSpecialPurposeField(writer, message.SpecialPurposeField); // FRN 27
+                    AddToFspec(fspec, 27);
+            }
+
+            if (message.ReservedExpansionField != null)
+            {
+                writer.Write(message.ReservedExpansionField); // FRN 28
+                AddToFspec(fspec, 28);
+            }
+       
+            // Calculate FSPEC length
+            int fspecBitCount = fspec.Count * 8;
+            int fspecByteCount = (fspecBitCount + 7) / 8;
+
+            // Write actual FSPEC
+            ms.Seek(fspecPosition, SeekOrigin.Begin);
+            writer.Write(fspec.ToArray(), 0, fspecByteCount);
+            ms.Seek(0, SeekOrigin.End);
+
+            // Update length
+            ushort length = (ushort)ms.Length;
+            ms.Seek(1, SeekOrigin.Begin);
+            writer.Write(BitConverter.GetBytes((ushort)((length >> 8) & 0xFF)), 0, 1); // Big-endian high byte
+            writer.Write(BitConverter.GetBytes((ushort)(length & 0xFF)), 0, 1); // Big-endian low byte
+
+            return ms.ToArray();
         }
+    }
+}
+private static void AddToFspec(List<byte> fspec, int frn)
+{
+    int byteIndex = (frn - 1) / 7;
+    int bitIndex = (frn - 1) % 7;
+
+    // Ensure the FSPEC list has enough bytes
+    while (fspec.Count <= byteIndex)
+    {
+        fspec.Add(0x00);
+    }
+
+    // Set the corresponding bit in the FSPEC
+    fspec[byteIndex] |= (byte)(0x80 >> bitIndex);
+
+    // If this is not the last byte, set the extension bit of the current byte
+    if (byteIndex > 0)
+    {
+        fspec[byteIndex - 1] |= 0x01;
+    }
+
+    // Log the current state of FSPEC
+    Console.WriteLine($"Adding FRN {frn} to FSPEC.");
+    Console.WriteLine("Current FSPEC bytes:");
+    foreach (var b in fspec)
+    {
+        Console.Write($"{b:X2} ");
+    }
+    Console.WriteLine();
+}
+
 
         private static void WriteI048010(BinaryWriter writer, I048010 data)
         {
@@ -236,11 +289,12 @@ private static void WriteI048020(BinaryWriter writer, I048020 data)
             }
         }
 
-        private static void WriteI048040(BinaryWriter writer, I048040 data)
-        {
-            writer.Write(data.RHO);
-            writer.Write(data.THETA);
-        }
+    private static void WriteI048040(BinaryWriter writer, I048040 data)
+    {
+        // Write RHO and THETA as unsigned short
+        writer.Write(data.RHO);
+        writer.Write(data.THETA);
+    }
 
         private static void WriteI048042(BinaryWriter writer, I048042 data)
         {
@@ -508,5 +562,13 @@ private static void WriteI048170(BinaryWriter writer, I048170 data)
         {
             writer.Write(data.ACASRA);
         }
+
+        private static void WriteSpecialPurposeField(BinaryWriter writer, byte[] data)
+{
+    writer.Write((byte)(data.Length + 1)); // Write the length byte
+    writer.Write(data); // Write the data bytes
+}
+
+
     }
 }
