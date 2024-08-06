@@ -357,23 +357,23 @@ namespace AsterixCat048
         }
 
         private static I048090 DecodeI048090(BinaryReader reader)
-{
-    ushort value = ReadUInt16BigEndian(reader);
-    short flightLevel = (short)(value & 0x3FFF);
+        {
+            ushort value = ReadUInt16BigEndian(reader);
+            short flightLevel = (short)(value & 0x3FFF);
 
-    // Sign-extend the 14-bit two's complement Flight Level value
-    if ((flightLevel & 0x2000) != 0)
-    {
-        flightLevel |= unchecked((short)0xC000);
-    }
+            // Sign-extend the 14-bit two's complement Flight Level value
+            if ((flightLevel & 0x2000) != 0)
+            {
+                flightLevel |= unchecked((short)0xC000);
+            }
 
-    return new I048090
-    {
-        V = (value & 0x8000) != 0,
-        G = (value & 0x4000) != 0,
-        FlightLevel = flightLevel
-    };
-}
+            return new I048090
+            {
+                V = (value & 0x8000) != 0,
+                G = (value & 0x4000) != 0,
+                FlightLevel = flightLevel
+            };
+        }
 
         private static I048100 DecodeI048100(BinaryReader reader)
         {

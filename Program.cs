@@ -45,15 +45,25 @@ namespace AsterixCat048
                 radarLatitude,
                 radarLongitude
             );
-            var (rho, theta) = CoordinateConverter.ConvertToPolar(x, y);
+            Console.Write($"X: {x} ");
+            Console.Write($"Y: {y} ");
 
-            // Apply scale factors
-            ushort scaledRho = (ushort)(rho * 256); // Scale factor for RHO
-            ushort scaledTheta = (ushort)(theta * (65536 / 360.0)); // Scale factor for THETA
+            var (rho, theta) = CoordinateConverter.ConvertToPolar(x, y);
+            Console.Write($"RHO: {rho} ");
+            Console.Write($"THETA: {theta} ");
 
             // Convert altitude to flight level
+            // Disclaimer: The flight level should be based on barometric altitude rather than GPS altitude.
+            // Flight levels are standardized vertical altitudes used in aviation to ensure safe separation
+            // between aircraft. They are expressed in hundreds of feet and are derived from the barometric
+            // pressure setting of 1013.25 hPa (29.92 inHg). The difference between GPS altitude and barometric
+            // altitude can be significant due to variations in atmospheric pressure and weather conditions.
+            // Therefore, using GPS altitude for flight level calculation may not be valid for Air Traffic Control (ATC) purposes.
+            // For instance, FL350 refers to a pressure altitude of 35,000 feet based on the standard pressure setting.
+            // Always use barometric altitude when calculating flight levels for ATC.
             double altitudeInFeet = altitude * 3.28084; // Convert meters to feet
-            short flightLevel = (short)(altitudeInFeet / 100.0 * 4); // Flight level in units of 100 feet, scaled by 4
+            int flightLevel = (int)(altitudeInFeet / 100.0); // Flight level in units of 100 feet
+            Console.Write($"FL: {flightLevel} ");
 
             // Create ASTERIX Cat048 message
             AsterixCat048Message messageNMEA = new AsterixCat048Message
@@ -61,11 +71,19 @@ namespace AsterixCat048
                 Category = 48,
                 DataSourceIdentifier = new I048010 { SAC = sac, SIC = sic },
                 TimeOfDay = new I048140 { TimeOfDay = timeOfDay },
-                CalculatedPositionCartesian = new I048042 { X = (short)x, Y = (short)y },
-                MeasuredPositionPolar = new I048040 { RHO = scaledRho, THETA = scaledTheta },
+                CalculatedPositionCartesian = new I048042
+                {
+                    X = (short)(x * 128),
+                    Y = (short)(y * 128)
+                }, // Scale factor for I048042
+                MeasuredPositionPolar = new I048040
+                {
+                    RHO = (ushort)(rho * 256),
+                    THETA = (ushort)(theta * 65536 / 360.0)
+                }, // Scale factor for I048040
                 FlightLevel = new I048090
                 {
-                    FlightLevel = flightLevel,
+                    FlightLevel = (short)(flightLevel * 4), // Scale factor for I048090
                     V = false,
                     G = false
                 }
@@ -166,6 +184,7 @@ namespace AsterixCat048
             double radarLongitude
         )
         {
+            const double metersToNauticalMiles = 0.000539957;
             // Convert degrees to radians
             double latRad = DegreesToRadians(latitude);
             double lonRad = DegreesToRadians(longitude);
@@ -189,7 +208,9 @@ namespace AsterixCat048
                     Math.Cos(radarLatRad) * Math.Sin(latRad)
                     - Math.Sin(radarLatRad) * Math.Cos(latRad) * Math.Cos(lonRad - radarLonRad)
                 );
-
+            // Convert from meters to Nautical Miles
+            x *= metersToNauticalMiles;
+            y *= metersToNauticalMiles;
             return (x, y);
         }
 

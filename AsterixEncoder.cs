@@ -236,15 +236,6 @@ namespace AsterixCat048
             {
                 fspec[byteIndex - 1] |= 0x01;
             }
-
-            // Log the current state of FSPEC
-            Console.WriteLine($"Adding FRN {frn} to FSPEC.");
-            Console.WriteLine("Current FSPEC bytes:");
-            foreach (var b in fspec)
-            {
-                Console.Write($"{b:X2} ");
-            }
-            Console.WriteLine();
         }
 
         private static void WriteI048010(BinaryWriter writer, I048010 data)
@@ -412,9 +403,10 @@ namespace AsterixCat048
             ushort combined = (ushort)(
                 (data.V ? 0x8000 : 0x0000)
                 | (data.G ? 0x4000 : 0x0000)
-                | (ushort)(data.FlightLevel & 0x3FFF)
+                | (ushort)(data.FlightLevel & 0x3FFF) // Use only 14 bits for flight level
             );
-            writer.Write(combined);
+            writer.Write((byte)(combined >> 8)); // Write the high byte (big-endian)
+            writer.Write((byte)(combined & 0xFF)); // Write the low byte (big-endian)
         }
 
         private static void WriteI048100(BinaryWriter writer, I048100 data)
