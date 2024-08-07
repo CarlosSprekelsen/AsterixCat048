@@ -1,5 +1,7 @@
 using System;
 using System.Globalization;
+using System.Net;
+using System.Net.Sockets;
 
 namespace AsterixCat048
 {
@@ -23,7 +25,7 @@ namespace AsterixCat048
             byte sic = 1;
 
             // Target values
-            uint timeOfDay = 123519; // Time of day in seconds
+            double timeOfDay = 1235.19; // Time of day in seconds
             double latitude = 48.1173; // Target latitude
             double longitude = 11.5167; // Target longitude
             double altitude = 545.4; // Altitude in meters
@@ -58,7 +60,7 @@ namespace AsterixCat048
             {
                 Category = 48,
                 DataSourceIdentifier = new I048010 { SAC = sac, SIC = sic },
-                TimeOfDay = new I048140 { TimeOfDay = timeOfDay },
+                TimeOfDay = new I048140 { TimeOfDay = (uint)(timeOfDay * 128.0) },
                 CalculatedPositionCartesian = new I048042
                 {
                     X = (short)(CoordinateConverter.ToNauticalMiles(x) * 128),
@@ -92,6 +94,16 @@ namespace AsterixCat048
             // Encode message
             byte[] encodedMessage = AsterixEncoder.Encode(message);
 
+
+            // Publish encoded message to localhost, port 15000 using UDP broadcast
+            using (UdpClient udpClient = new UdpClient())
+            {
+                udpClient.EnableBroadcast = true;
+                IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, 15000);
+                udpClient.Send(encodedMessage, encodedMessage.Length, endPoint);
+            }
+
+
             // Print encoded message
             Console.WriteLine("--------------------");
             Console.WriteLine("Encoded ASTERIX Cat048 Message:");
@@ -102,6 +114,7 @@ namespace AsterixCat048
             Console.WriteLine();
             Console.WriteLine("--------------------");
 
+            // Decode message & test decoder
             AsterixCat048Message messageReverse = AsterixDecoder.Decode(encodedMessage);
             messageReverse.PrintToConsole();
         }

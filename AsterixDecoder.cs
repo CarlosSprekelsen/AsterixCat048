@@ -400,8 +400,13 @@ namespace AsterixCat048
 
         private static I048110 DecodeI048110(BinaryReader reader)
         {
-            return new I048110 { Height = reader.ReadInt16() };
+               // Read the height in big-endian format
+            ushort encodedHeight = (ushort)((reader.ReadByte() << 8) | reader.ReadByte());
+            // Extract the 14-bit height value
+            short heightInUnits = (short)(encodedHeight & 0x3FFF);
+            return new I048110 { Height = heightInUnits};
         }
+
 
         private static I048120 DecodeI048120(BinaryReader reader)
         {

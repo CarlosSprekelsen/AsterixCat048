@@ -312,8 +312,8 @@ namespace AsterixCat048
         {
             // Print I048/042 Calculated Position in Cartesian Coordinates
             Console.WriteLine("Data Item I048/042: Calculated Position in Cartesian Coordinates");
-            Console.WriteLine($"  X [Nm]: {X / 128}");
-            Console.WriteLine($"  Y [Nm]: {Y / 128}");
+            Console.WriteLine($"  X [Nm]: {(double)(X / 128)}");
+            Console.WriteLine($"  Y [Nm]: {(double)(Y / 128)}");
         }
     }
 
@@ -995,7 +995,7 @@ namespace AsterixCat048
             // Print I048/140 Time of Day
             Console.WriteLine("Data Item I048/140: Time-of-Day");
             TimeSpan timeSpan = ToTimeSpan();
-            Console.WriteLine($"  Time of Day: {timeSpan:hh\\:mm\\:ss}");
+            Console.WriteLine($"  Time of Day: {timeSpan:hh\\:mm\\:ss} ({TimeOfDay / 128.0} s)");
         }
     }
 

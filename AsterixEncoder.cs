@@ -455,7 +455,11 @@ private static void WriteI048070(BinaryWriter writer, I048070 data)
 
         private static void WriteI048110(BinaryWriter writer, I048110 data)
         {
-            writer.Write(data.Height);
+            short heightInUnits = (short)(data.Height);
+            ushort encodedHeight = (ushort)(heightInUnits & 0x3FFF); 
+            // Write the height in big-endian format
+            writer.Write((byte)(encodedHeight >> 8)); // Write the high byte
+            writer.Write((byte)(encodedHeight & 0xFF)); // Write the low byte
         }
 
         private static void WriteI048120(BinaryWriter writer, I048120 data)
