@@ -39,14 +39,14 @@ namespace AsterixCat048
                 out double altitude
             );
 
-            var (x, y) = CoordinateConverter.ConvertToLocal2D(
+            var (x, y) = CoordinateConverter.ConvertGeodeticToLocalCartesian(
                 latitude,
                 longitude,
                 radarLatitude,
                 radarLongitude
             );
 
-            var (rho, theta) = CoordinateConverter.ConvertToPolar(x, y);
+            var (rho, theta) = CoordinateConverter.ConvertLocalCartesianToPolar(x, y);
 
             // Convert altitude to flight level
             // Disclaimer: The flight level should be based on barometric altitude rather than GPS altitude.
@@ -68,12 +68,12 @@ namespace AsterixCat048
                 TimeOfDay = new I048140 { TimeOfDay = timeOfDay },
                 CalculatedPositionCartesian = new I048042
                 {
-                    X = (short)(x * 128),
-                    Y = (short)(y * 128)
+                    X = (short)(CoordinateConverter.ToNauticalMiles(x) * 128),
+                    Y = (short)(CoordinateConverter.ToNauticalMiles(y) * 128)
                 }, // Scale factor for I048042
                 MeasuredPositionPolar = new I048040
                 {
-                    RHO = (ushort)(rho * 256),
+                    RHO = (ushort)(CoordinateConverter.ToNauticalMiles(rho) * 256),
                     THETA = (ushort)(theta * 65536 / 360.0)
                 }, // Scale factor for I048040
                 FlightLevel = new I048090
@@ -168,65 +168,5 @@ namespace AsterixCat048
         }
     }
 
-    public class CoordinateConverter
-    {
-        private const double EarthRadius = 6378137.0; // WGS-84 Earth radius in meters
-
-        public static (double x, double y) ConvertToLocal2D(
-            double latitude,
-            double longitude,
-            double radarLatitude,
-            double radarLongitude
-        )
-        {
-            const double metersToNauticalMiles = 0.000539957;
-            // Convert degrees to radians
-            double latRad = DegreesToRadians(latitude);
-            double lonRad = DegreesToRadians(longitude);
-            double radarLatRad = DegreesToRadians(radarLatitude);
-            double radarLonRad = DegreesToRadians(radarLongitude);
-
-            // Calculate the stereographic projection
-            double k =
-                2.0
-                / (
-                    1.0
-                    + Math.Sin(radarLatRad) * Math.Sin(latRad)
-                    + Math.Cos(radarLatRad) * Math.Cos(latRad) * Math.Cos(lonRad - radarLonRad)
-                );
-
-            double x = EarthRadius * k * Math.Cos(latRad) * Math.Sin(lonRad - radarLonRad);
-            double y =
-                EarthRadius
-                * k
-                * (
-                    Math.Cos(radarLatRad) * Math.Sin(latRad)
-                    - Math.Sin(radarLatRad) * Math.Cos(latRad) * Math.Cos(lonRad - radarLonRad)
-                );
-            // Convert from meters to Nautical Miles
-            x *= metersToNauticalMiles;
-            y *= metersToNauticalMiles;
-            return (x, y);
-        }
-
-        public static (double rho, double theta) ConvertToPolar(double x, double y)
-        {
-            double rho = Math.Sqrt(x * x + y * y) / 1852.0; // Convert meters to nautical miles
-            double theta = RadiansToDegrees(Math.Atan2(x, y)); // Calculate azimuth angle in degrees
-            if (theta < 0)
-                theta += 360.0; // Normalize angle to [0, 360]
-
-            return (rho, theta);
-        }
-
-        private static double DegreesToRadians(double degrees)
-        {
-            return degrees * Math.PI / 180.0;
-        }
-
-        private static double RadiansToDegrees(double radians)
-        {
-            return radians * 180.0 / Math.PI;
-        }
-    }
+    
 }
