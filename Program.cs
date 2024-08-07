@@ -17,8 +17,8 @@ namespace AsterixCat048
 
 
             // Radar values 
-            double radarLatitude = 48.0; // Radar latitude
-            double radarLongitude = 11.0; // Radar longitude
+            double radarLatitude = 18.0; // Radar latitude
+            double radarLongitude = 8.0; // Radar longitude
             byte sac = 0;
             byte sic = 1;
 
@@ -64,7 +64,7 @@ namespace AsterixCat048
                 }, // Scale factor for I048042
                 MeasuredPositionPolar = new I048040
                 {
-                    RHO = (ushort)(CoordinateConverter.ToNauticalMiles(rho) * 256),
+                    RHO = (ushort)Math.Min(CoordinateConverter.ToNauticalMiles(rho) * 256, ushort.MaxValue),
                     THETA = (ushort)(theta * 65536 / 360.0)
                 }, // Scale factor for I048040
                 FlightLevel = new I048090

@@ -183,8 +183,8 @@ namespace AsterixCat048
                 FX = (byte)(firstPart & 0x01),
                 Extensions = new List<I048020Extension>()
             };
-
-            while (data.FX != 0)
+            var FollowingExtension = data.FX;
+            while (FollowingExtension != 0)
             {
                 byte extByte = reader.ReadByte();
                 I048020Extension extension = new I048020Extension
@@ -198,7 +198,7 @@ namespace AsterixCat048
                     FX = (extByte & 0x01) != 0
                 };
                 data.Extensions.Add(extension);
-                data.FX = (byte)(extByte & 0x01);
+                FollowingExtension = (byte)(extByte & 0x01);
             }
 
             return data;

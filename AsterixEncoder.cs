@@ -34,7 +34,7 @@ namespace AsterixCat048
 
                     // Encode Other bits to comply with  ICD
                     // Check if RHO exceeds the maximum range and set ERR bit if necessary
-            if (message.MeasuredPositionPolar.RHO >= 256 * 256)
+            if (message.MeasuredPositionPolar.RHO >= 256 )
             {
                 if (message.TargetReportAndTargetCapabilities.Extensions == null)
                 {
@@ -50,7 +50,7 @@ namespace AsterixCat048
                 message.TargetReportAndTargetCapabilities.Extensions.Add(extension);
 
                 // Set the FX bit in the main data item if it has extensions
-                message.TargetReportAndTargetCapabilities.FX = 1;
+                message.TargetReportAndTargetCapabilities.FX = 0x01;
             }
 
                     // Encode optional fields
