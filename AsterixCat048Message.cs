@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
+
 namespace AsterixCat048
 {
     // Main structure for I048/010 Data Item

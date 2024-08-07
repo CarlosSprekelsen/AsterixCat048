@@ -434,22 +434,22 @@ private static void WriteI048070(BinaryWriter writer, I048070 data)
         private static void WriteI048100(BinaryWriter writer, I048100 data)
         {
             uint combined = (uint)(
-                (data.V ? 0x80000000 : 0x00000000)
-                | (data.G ? 0x40000000 : 0x00000000)
-                | (data.ModeCCode << 13)
-                | (data.QC1 ? 0x00001000 : 0x00000000)
-                | (data.QA1 ? 0x00000800 : 0x00000000)
-                | (data.QC2 ? 0x00000400 : 0x00000000)
-                | (data.QA2 ? 0x00000200 : 0x00000000)
-                | (data.QC4 ? 0x00000100 : 0x00000000)
-                | (data.QA4 ? 0x00000080 : 0x00000000)
-                | (data.QB1 ? 0x00000040 : 0x00000000)
-                | (data.QD1 ? 0x00000020 : 0x00000000)
-                | (data.QB2 ? 0x00000010 : 0x00000000)
-                | (data.QD2 ? 0x00000008 : 0x00000000)
-                | (data.QB4 ? 0x00000004 : 0x00000000)
-                | (data.QD4 ? 0x00000002 : 0x00000000)
-            );
+        (data.V ? 0x80000000u : 0x00000000u)
+        | (data.G ? 0x40000000u : 0x00000000u)
+        | ((uint)data.ModeCCode << 13)
+        | (data.QC1 ? 0x00001000u : 0x00000000u)
+        | (data.QA1 ? 0x00000800u : 0x00000000u)
+        | (data.QC2 ? 0x00000400u : 0x00000000u)
+        | (data.QA2 ? 0x00000200u : 0x00000000u)
+        | (data.QC4 ? 0x00000100u : 0x00000000u)
+        | (data.QA4 ? 0x00000080u : 0x00000000u)
+        | (data.QB1 ? 0x00000040u : 0x00000000u)
+        | (data.QD1 ? 0x00000020u : 0x00000000u)
+        | (data.QB2 ? 0x00000010u : 0x00000000u)
+        | (data.QD2 ? 0x00000008u : 0x00000000u)
+        | (data.QB4 ? 0x00000004u : 0x00000000u)
+        | (data.QD4 ? 0x00000002u : 0x00000000u)
+    );
             writer.Write(combined);
         }
 
