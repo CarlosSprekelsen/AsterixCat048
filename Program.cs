@@ -78,6 +78,9 @@ namespace AsterixCat048
                     V = 0x00,
                     G = 0x00,
                     L = 0x00
+                },
+                HeightMeasuredBy3DRadar = new I048110 { 
+                    Height = (short)altitudeInFeet / 25.0
                 }
             };
             // Encode message

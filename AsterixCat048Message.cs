@@ -763,9 +763,9 @@ namespace AsterixCat048
 
         public void PrintToConsole()
         {
-            // Print I048/110 Mode C Code and Code Confidence Indicator
-            Console.WriteLine("Data Item I048/110: Mode C Code and Code Confidence Indicator");
-            Console.WriteLine($"  Height: {Height}");
+            // Print I048/110 Height Measured by a 3D Radar
+            Console.WriteLine("Data Item I048/110: Height Measured by a 3D Radar");
+            Console.WriteLine($"  Height [ft]: {Height}");
         }
     }
 
