@@ -28,6 +28,8 @@ namespace AsterixCat048
             double longitude = 11.5167; // Target longitude
             double altitude = 545.4; // Altitude in meters
             ushort squawk = 1200; // Squawk code
+            double courseOverGround = 90.0; // Course over ground in degrees    
+            double groundSpeed = 100.0; // Ground speed in m/s
             
 
             var (x, y) = CoordinateConverter.ConvertGeodeticToLocalCartesian(
@@ -80,9 +82,13 @@ namespace AsterixCat048
                     L = 0x00
                 },
                 HeightMeasuredBy3DRadar = new I048110 { 
-                    Height = (short)altitudeInFeet / 25.0
+                    Height = (short)(altitudeInFeet / 25.0)
+                },
+                CalculatedTrackVelocityPolar = new I048200 {
+                    GroundSpeed = (ushort)(CoordinateConverter.ToNauticalMiles(groundSpeed) / Math.Pow(2, -14)),
+                    Heading = (ushort)(courseOverGround * 65536 / 360.0)
                 }
-            };
+            }; 
             // Encode message
             byte[] encodedMessage = AsterixEncoder.Encode(message);
 

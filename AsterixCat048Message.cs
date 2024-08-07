@@ -765,7 +765,7 @@ namespace AsterixCat048
         {
             // Print I048/110 Height Measured by a 3D Radar
             Console.WriteLine("Data Item I048/110: Height Measured by a 3D Radar");
-            Console.WriteLine($"  Height [ft]: {Height}");
+            Console.WriteLine($"  Height [ft]: {Height*25}"); //Resolutin scale factor is 25ft
         }
     }
 

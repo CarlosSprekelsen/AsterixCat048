@@ -551,8 +551,13 @@ private static void WriteI048070(BinaryWriter writer, I048070 data)
 
         private static void WriteI048200(BinaryWriter writer, I048200 data)
         {
-            writer.Write(data.GroundSpeed);
-            writer.Write(data.Heading);
+            // Convert GroundSpeed to big-endian
+            writer.Write((byte)(data.GroundSpeed >> 8));
+            writer.Write((byte)data.GroundSpeed);
+
+            // Convert Heading to big-endian
+            writer.Write((byte)(data.Heading >> 8));
+            writer.Write((byte)data.Heading);
         }
 
         private static void WriteI048210(BinaryWriter writer, I048210 data)
