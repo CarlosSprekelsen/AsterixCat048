@@ -364,20 +364,21 @@ namespace AsterixCat048
             writer.Write(combined);
         }
 
-        private static void WriteI048070(BinaryWriter writer, I048070 data)
-        {
-            // Convert Mode3ACode from decimal to octal
-            ushort octalCode = (ushort)I048070.ConvertToOctal(data.Mode3ACode);
+private static void WriteI048070(BinaryWriter writer, I048070 data)
+{
+    // Convert Mode3ACode from decimal to octal
+    ushort octalCode = (ushort)I048070.ConvertToOctal(data.Mode3ACode);
 
-            byte firstByte = (byte)(
-                (data.V << 7) | (data.G << 6) | (data.L << 5) | ((octalCode >> 12) & 0x0F)
-            );
+    byte firstByte = (byte)(
+        (data.V << 7) | (data.G << 6) | (data.L << 5) | ((octalCode >> 8) & 0x0F)
+    );
 
-            byte secondByte = (byte)(octalCode & 0xFF);
+    byte secondByte = (byte)(octalCode & 0xFF);
 
-            writer.Write(firstByte);
-            writer.Write(secondByte);
-        }
+    writer.Write(firstByte);
+    writer.Write(secondByte);
+}
+
 
         private static void WriteI048080(BinaryWriter writer, I048080 data)
         {

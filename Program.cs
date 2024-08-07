@@ -27,7 +27,7 @@ namespace AsterixCat048
             double latitude = 48.1173; // Target latitude
             double longitude = 11.5167; // Target longitude
             double altitude = 545.4; // Altitude in meters
-            uint squawk = 1200; // Squawk code
+            ushort squawk = 1200; // Squawk code
             
 
             var (x, y) = CoordinateConverter.ConvertGeodeticToLocalCartesian(
@@ -72,9 +72,9 @@ namespace AsterixCat048
                     FlightLevel = (short)(flightLevel * 4), // Scale factor for I048090
                     V = false,
                     G = false
-                }
+                },
                 Mode3ACode = new I048070 { 
-                    Mode3ACode = ConvertSquawkToOctalByte(squawk),
+                    Mode3ACode = squawk,
                     V = 0x00,
                     G = 0x00,
                     L = 0x00
@@ -110,28 +110,6 @@ namespace AsterixCat048
             return bytes;
         }
 
-        public static byte ConvertSquawkToOctalByte(uint squawk)
-{
-    // Ensure the squawk code is within the valid range
-    if (squawk > 7777)
-    {
-        throw new ArgumentOutOfRangeException(nameof(squawk), "Squawk code must be in the range 0000 to 7777.");
-    }
-
-    // Convert squawk code to string and pad with zeros if necessary
-    string squawkString = squawk.ToString("D4");
-
-    // Extract each digit of the squawk code
-    int digit1 = squawkString[0] - '0';
-    int digit2 = squawkString[1] - '0';
-    int digit3 = squawkString[2] - '0';
-    int digit4 = squawkString[3] - '0';
-
-    // Pack the digits into a single byte
-    byte octalByte = (byte)((digit1 << 6) | (digit2 << 4) | (digit3 << 2) | digit4);
-
-    return octalByte;
-}
     }
 
     

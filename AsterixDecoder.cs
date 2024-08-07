@@ -318,23 +318,23 @@ namespace AsterixCat048
         }
 
         private static I048070 DecodeI048070(BinaryReader reader)
-        {
-            byte firstByte = reader.ReadByte();
-            byte secondByte = reader.ReadByte();
+{
+    byte firstByte = reader.ReadByte();
+    byte secondByte = reader.ReadByte();
 
-            I048070 data = new I048070
-            {
-                V = (byte)((firstByte >> 7) & 0x01),
-                G = (byte)((firstByte >> 6) & 0x01),
-                L = (byte)((firstByte >> 5) & 0x01),
-                Mode3ACode = (ushort)(((firstByte & 0x0F) << 12) | secondByte)
-            };
+    ushort octalCode = (ushort)(((firstByte & 0x0F) << 8) | secondByte);
 
-            // Convert Mode3ACode from octal to decimal
-            data.Mode3ACode = (ushort)I048070.ConvertToDecimal(data.Mode3ACode);
+    I048070 data = new I048070
+    {
+        V = (byte)((firstByte >> 7) & 0x01),
+        G = (byte)((firstByte >> 6) & 0x01),
+        L = (byte)((firstByte >> 5) & 0x01),
+        Mode3ACode = (ushort)I048070.ConvertToDecimal(octalCode)
+    };
 
-            return data;
-        }
+    return data;
+}
+
 
         private static I048080 DecodeI048080(BinaryReader reader)
         {
