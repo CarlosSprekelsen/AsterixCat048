@@ -15,29 +15,19 @@ namespace AsterixCat048
             message.PrintToConsole();
             */
 
-            // Sample NMEA sentences
-            string[] nmeaSentences = new string[]
-            {
-                "$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47",
-                "$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A",
-                "$GPGSV,3,1,12,04,77,068,46,05,05,033,,07,11,097,42,08,17,196,45*75",
-                "$GPGSA,A,3,04,05,,07,08,,09,10,,12,,14,3.8,1.2,2.9*3D"
-            };
 
-            // Required program parameters
-
+            // Radar values 
             double radarLatitude = 48.0; // Radar latitude
             double radarLongitude = 11.0; // Radar longitude
             byte sac = 0;
             byte sic = 1;
-            // Extract data from NMEA sentences
-            ExtractDataFromNMEA(
-                nmeaSentences,
-                out uint timeOfDay,
-                out double latitude,
-                out double longitude,
-                out double altitude
-            );
+
+            // Target values
+            uint timeOfDay = 123519; // Time of day in seconds
+            double latitude = 48.1173; // Target latitude
+            double longitude = 11.5167; // Target longitude
+            double altitude = 545.4; // Altitude in meters
+            
 
             var (x, y) = CoordinateConverter.ConvertGeodeticToLocalCartesian(
                 latitude,
@@ -61,7 +51,7 @@ namespace AsterixCat048
             int flightLevel = (int)(altitudeInFeet / 100.0); // Flight level in units of 100 feet
 
             // Create ASTERIX Cat048 message
-            AsterixCat048Message messageNMEA = new AsterixCat048Message
+            AsterixCat048Message message = new AsterixCat048Message
             {
                 Category = 48,
                 DataSourceIdentifier = new I048010 { SAC = sac, SIC = sic },
@@ -84,7 +74,7 @@ namespace AsterixCat048
                 }
             };
             // Encode message
-            byte[] encodedMessage = AsterixEncoder.Encode(messageNMEA);
+            byte[] encodedMessage = AsterixEncoder.Encode(message);
 
             // Print encoded message
             Console.WriteLine("--------------------");
@@ -100,61 +90,7 @@ namespace AsterixCat048
             messageReverse.PrintToConsole();
         }
 
-        private static void ExtractDataFromNMEA(
-            string[] nmeaSentences,
-            out uint timeOfDay,
-            out double latitude,
-            out double longitude,
-            out double altitude
-        )
-        {
-            timeOfDay = 0;
-            latitude = 0;
-            longitude = 0;
-            altitude = 0;
 
-            foreach (string sentence in nmeaSentences)
-            {
-                if (sentence.StartsWith("$GPGGA"))
-                {
-                    // Extract data from GPGGA sentence
-                    string[] parts = sentence.Split(',');
-                    timeOfDay = ConvertTimeOfDay(parts[1]);
-                    latitude = ConvertLatitude(parts[2], parts[3]);
-                    longitude = ConvertLongitude(parts[4], parts[5]);
-                    altitude = double.Parse(parts[9], CultureInfo.InvariantCulture);
-                }
-            }
-        }
-
-        private static uint ConvertTimeOfDay(string timeString)
-        {
-            int hours = int.Parse(timeString.Substring(0, 2));
-            int minutes = int.Parse(timeString.Substring(2, 2));
-            int seconds = int.Parse(timeString.Substring(4, 2));
-            uint totalSeconds = (uint)(hours * 3600 + minutes * 60 + seconds);
-            return totalSeconds << 7; // Scale factor 2^-7
-        }
-
-        private static double ConvertLatitude(string latitudeString, string direction)
-        {
-            double latitude =
-                double.Parse(latitudeString.Substring(0, 2), CultureInfo.InvariantCulture)
-                + double.Parse(latitudeString.Substring(2), CultureInfo.InvariantCulture) / 60.0;
-            if (direction == "S")
-                latitude = -latitude;
-            return latitude;
-        }
-
-        private static double ConvertLongitude(string longitudeString, string direction)
-        {
-            double longitude =
-                double.Parse(longitudeString.Substring(0, 3), CultureInfo.InvariantCulture)
-                + double.Parse(longitudeString.Substring(3), CultureInfo.InvariantCulture) / 60.0;
-            if (direction == "W")
-                longitude = -longitude;
-            return longitude;
-        }
 
         private static byte[] HexStringToByteArray(string hex)
         {

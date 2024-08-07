@@ -280,7 +280,7 @@ namespace AsterixCat048
         {
             // Print I048/040 Measured Position in Slant Polar Coordinates
             Console.WriteLine("Data Item I048/040: Measured Position in Slant Polar Coordinates");
-            Console.WriteLine($"  RHO [NM]: {RHO * (1.0 / 256.0)}");
+            Console.WriteLine($"  RHO [Nm]: {RHO * (1.0 / 256.0)}");
             Console.WriteLine($"  THETA [°]: {THETA * (360.0 / 65536.0)}");
         }
     }
