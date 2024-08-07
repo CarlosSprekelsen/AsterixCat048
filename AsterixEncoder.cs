@@ -32,6 +32,27 @@ namespace AsterixCat048
                     WriteI048140(writer, message.TimeOfDay); // FRN 2
                     AddToFspec(fspec, 2);
 
+                    // Encode Other bits to comply with  ICD
+                    // Check if RHO exceeds the maximum range and set ERR bit if necessary
+            if (message.MeasuredPositionPolar.RHO >= 256 * 256)
+            {
+                if (message.TargetReportAndTargetCapabilities.Extensions == null)
+                {
+                    message.TargetReportAndTargetCapabilities.Extensions = new List<I048020Extension>();
+                }
+
+                // Add an extension and set the ERR bit
+                var extension = new I048020Extension
+                {
+                    ERR = true,
+                    FX = false
+                };
+                message.TargetReportAndTargetCapabilities.Extensions.Add(extension);
+
+                // Set the FX bit in the main data item if it has extensions
+                message.TargetReportAndTargetCapabilities.FX = 1;
+            }
+
                     // Encode optional fields
                     if (!message.TargetReportAndTargetCapabilities.Equals(default(I048020)))
                     {
